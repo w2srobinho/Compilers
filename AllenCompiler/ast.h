@@ -30,16 +30,16 @@ namespace AST {
     // std::string computeTree();
   };
 
-  // class BinOp : public Node {
-  // public:
-  //   Operation op;
-  //   Node *left;
-  //   Node *right;
-  //   BinOp(Node *left, Operation op, Node *right) :
-  //   left(left), right(right), op(op) { }
-  //   void printTree();
-  //   // std::string computeTree();
-  // };
+  class BinOp : public Node {
+  public:
+    Operation op;
+    Node *left;
+    Node *right;
+    BinOp(Node *left, Operation op, Node *right) :
+    left(left), right(right), op(op) { }
+    void printTree();
+    // std::string computeTree();
+  };
 
   class Block : public Node {
   public:

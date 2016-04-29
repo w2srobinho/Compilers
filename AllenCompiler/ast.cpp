@@ -10,16 +10,16 @@ void Value::printTree(){
     std::cout << value;
 }
 
-// void BinOp::printTree(){
-//     left->printTree();
-//     switch(op){
-//         case plus: std::cout << " + "; break;
-//         case times: std::cout << " * "; break;
-//         case assign: std::cout << " = "; break;
-//     }
-//     right->printTree();
-//     return;
-// }
+void BinOp::printTree(){
+    left->printTree();
+    switch(op){
+        case plus: std::cout << " + "; break;
+        case times: std::cout << " * "; break;
+        case assign: std::cout << " = "; break;
+    }
+    right->printTree();
+    return;
+}
 
 void Block::printTree(){
     for (Node* line: lines) {

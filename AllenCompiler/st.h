@@ -49,7 +49,7 @@ class Symbol;
 
   class SymbolTable {
     private:
-      std::vector<Symbol *> undefined_types;
+      typedef std::map<std::string, Symbol*> undefined_types;
 
     public:
       SymbolList entryList;

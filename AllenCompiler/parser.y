@@ -89,7 +89,7 @@ expr        : T_INT  { $$ = new AST::Value($1); }
             | expr error { yyerrok; $$ = $1; } /*just a point for error recovery*/
             ;
 
-varlist     : T_ID { std::cout << "linha 88 "<< $1 << std::endl;
+varlist     : T_ID { std::cout << "linha 88" << std::endl;
                      $$ = symtab.newVariable($1, NULL); }
             | varlist T_COMMA T_ID { std::cout << "linha 89" << std::endl;
                                      $$ = symtab.newVariable($3, $1); }
