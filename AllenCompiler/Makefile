@@ -5,7 +5,7 @@ CC=clang++
 PARAM=-std=c++11 -fcxx-exceptions -Wno-deprecated-register
 OUTPUT=myparse
 
-all: flex yacc #clang
+all: flex yacc clang
 
 clang: *.cpp *.h
 	${CC} -o ${OUTPUT} *.cpp ${LLVMPARAM} ${PARAM}
@@ -18,3 +18,6 @@ flex: scanner.l
 
 clean:
 	rm parser.cpp parser.h scanner.cpp ${OUTPUT}
+
+test: all
+	./${OUTPUT} < test/v1.0
