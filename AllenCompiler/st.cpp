@@ -11,8 +11,9 @@ AST::Node* SymbolTable::newVariable(std::string id, AST::Node* next) {
     yyerror("Variable redefinition! %s\n", id.c_str());
   else {
     Symbol entry(undefined, variable, "", false);
-    undefined_types[id] = &entry;
+
     addSymbol(id,entry); //Adds variable to symbol table
+    undefined_types[id] = &entryList[id];
   }
   return new AST::Variable(id, next); //Creates variable node anyway
 }
@@ -25,14 +26,17 @@ void SymbolTable::updateSymbolTable(std::string strType) {
   if (strType.compare("int:") == 0) type = integer;
   else if (strType.compare("real:") == 0) type = real;
   else if (strType.compare("bool:") == 0) type = boolean;
-  std::cout << "Declaração de variável tipo " << strType << ": " << std::endl;
-  for(auto const &symbol : undefined_types) {
-    if (*begin(undefined_types)) {
-      std::cout << "/* message */" << std::endl;
+  std::cout << "Declaração de variável tipo " << strType << ": ";
+
+  for(auto undefined_symbol : undefined_types) {
+    if (begin(undefined_types)->first == undefined_symbol.first) {
+      std::cout << undefined_symbol.first;
+    } else {
+      std::cout << ", " << undefined_symbol.first;
     }
-    symbol->second->setType(type);
-    std::cout << symbol->first <<" "<< std::endl;
+    undefined_symbol.second->setType(type);
   }
+  std::cout << ";\n";
   undefined_types.clear();
 }
 
