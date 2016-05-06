@@ -27,7 +27,7 @@
 %token T_PLUS T_MINUS T_TIMES T_DIVISION
 %token T_EQUALS T_DIFFER T_GREATER T_LESS T_GREATER_OR_EQUAL T_LESS_OR_EQUAL
 %token T_AND T_OR T_NOT T_OPEN_PARENTS T_CLOSE_PARENTS
-%token T_ASSIGN T_END_LINE T_COMMA T_NL
+%token T_ASSIGN T_END_LINE T_COMMA T_COLON T_NL
 %token <name> T_TYPE_INT T_TYPE_REAL T_TYPE_BOOL T_ID
 
 /* type defines the type of our nonterminal symbols.
@@ -46,6 +46,8 @@
  */
 %left T_PLUS T_MINUS
 %left T_TIMES T_DIVISION
+%left T_CLOSE_PARENTHESES
+%right T_OPEN_PARENTHESES
 %nonassoc error
 
 /* Starting rule
@@ -54,45 +56,40 @@
 
 %%
 
-program     : lines { std::cout << "linha 57" << std::endl;programRoot = $1; }
+program     : lines { programRoot = $1; }
             ;
 
-lines       : line { std::cout << "linha 60" << std::endl;
-                     $$ = new AST::Block(); $$->lines.push_back($1); }
-            | lines line { std::cout << "linha 61" << std::endl;
-                           if($2 != NULL) $1->lines.push_back($2); }
+lines       : line { $$ = new AST::Block(); $$->lines.push_back($1); }
+            | lines line { if($2 != NULL) $1->lines.push_back($2); }
             ;
 
-line        : T_NL { std::cout << "linha 65" << std::endl;
-                     $$ = NULL; } /*nothing here to be used */
+line        : T_NL { $$ = NULL; } /*nothing here to be used */
             | expr T_END_LINE T_NL /*$$ = $1 when nothing is said*/
-            | vartype varlist T_END_LINE T_NL { std::cout << "linha 67" << std::endl;
-                                     symtab.updateSymbolTable($1);
-                                     $$ = $2; }
-            | T_ID T_ASSIGN expr T_END_LINE { std::cout << "linha 68" << std::endl;
-                                   AST::Node* node = symtab.assignVariable($1);
-                                   $$ = new AST::BinOp(node, AST::assign, $3); }
+            | vartype varlist T_END_LINE T_NL { symtab.updateSymbolTable($1);
+                                                $$ = $2; }
+            | T_ID T_ASSIGN expr T_END_LINE { AST::Node* node = symtab.assignVariable($1);
+                                              $$ = new AST::BinOp(node, AST::assign, $3); }
             ;
 
             /*$$ = $1 when nothing is said*/
-vartype     : T_TYPE_INT  { std::cout << "linha 72" << std::endl; }
-            | T_TYPE_REAL { std::cout << "linha 73" << std::endl; }
-            | T_TYPE_BOOL { std::cout << "linha 74" << std::endl; }
+vartype     : T_TYPE_INT  { }
+            | T_TYPE_REAL { }
+            | T_TYPE_BOOL { }
             ;
 
-expr        : T_INT  { $$ = new AST::Value($1); }
-            | T_REAL { $$ = new AST::Value($1); }
-            | T_BOOL { $$ = new AST::Value($1); }
+expr        : T_INT  { $$ = new AST::Value($1, AST::integer); }
+            | T_REAL { $$ = new AST::Value($1, AST::real); }
+            | T_BOOL { $$ = new AST::Value($1, AST::boolean); }
             | T_ID { $$ = symtab.useVariable($1); }
             | expr T_PLUS expr { $$ = new AST::BinOp($1,AST::plus,$3); }
+            | expr T_MINUS expr { $$ = new AST::BinOp($1,AST::minus,$3); }
+            | expr T_DIVISION expr { $$ = new AST::BinOp($1,AST::division,$3); }
             | expr T_TIMES expr { $$ = new AST::BinOp($1,AST::times,$3); }
             | expr error { yyerrok; $$ = $1; } /*just a point for error recovery*/
             ;
 
-varlist     : T_ID { std::cout << "linha 88" << std::endl;
-                     $$ = symtab.newVariable($1, NULL); }
-            | varlist T_COMMA T_ID { std::cout << "linha 89" << std::endl;
-                                     $$ = symtab.newVariable($3, $1); }
+varlist     : T_ID { $$ = symtab.newVariable($1, NULL); }
+            | varlist T_COMMA T_ID { $$ = symtab.newVariable($3, $1); }
             ;
 
 %%

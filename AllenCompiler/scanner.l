@@ -17,7 +17,7 @@ bools "TRUE"|"FALSE"
 [ \t]    ; //ignores spaces
 {digs}+                             {yylval.types = yytext; return T_INT;}
 {bools}                             {yylval.types = yytext; return T_BOOL;}
-{digs}+\.{digs}* | {digs}*\.{digs}+ {yylval.types = yytext; return T_REAL;}
+{digs}+\.{digs}* | {digs}*\.{digs}+ {yylval.types = yytext; return T_REAL;} // TODO Tá errado isso
 
 "+"        {return T_PLUS;}
 "-"        {return T_MINUS;}
@@ -36,15 +36,16 @@ bools "TRUE"|"FALSE"
 "OR"       {return T_OR;}
 "~"        {return T_NOT;}
 
-"("        {return T_OPEN_PARENTS;}
-")"        {return T_CLOSE_PARENTS;}
+"("        {return T_OPEN_PARENTHESES;}
+")"        {return T_CLOSE_PARENTHESES;}
 ";"        {return T_END_LINE;}
+":"        {return T_COLON;}
 
 ","        {return T_COMMA;}
 \n         {return T_NL;}
-"int:"     {yylval.name = strdup(yytext); return T_TYPE_INT;}
-"real:"    {yylval.name = strdup(yytext); return T_TYPE_REAL;}
-"bool:"    {yylval.name = strdup(yytext); return T_TYPE_BOOL;}
+"int"     {yylval.name = strdup(yytext); return T_TYPE_INT;}
+"real"    {yylval.name = strdup(yytext); return T_TYPE_REAL;}
+"bool"    {yylval.name = strdup(yytext); return T_TYPE_BOOL;}
 
 {chars}+   {yylval.name = strdup(yytext); return T_ID;} // TODO Aumentar a range dos nomes das variáveis
 .          {yyerror("Unknown token! %c\n", *yytext);} /*complains about every unknown character*/

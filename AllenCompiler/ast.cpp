@@ -7,15 +7,23 @@ extern ST::SymbolTable symtab;
 
 /* Print methods */
 void Value::printTree(){
-    std::cout << value;
+  std::string strType ="";
+  switch(type){
+    case integer: strType = " inteiro "; break;
+    case real: strType = " real "; break;
+    case boolean: strType = " boolean "; break;
+  }
+  std::cout << " valor " << strType << " " << value;
 }
 
 void BinOp::printTree(){
     left->printTree();
     switch(op){
-        case plus: std::cout << " + "; break;
-        case times: std::cout << " * "; break;
-        case assign: std::cout << " = "; break;
+      case plus: std::cout << " soma "; break;
+      case minus: std::cout << " subtração "; break;
+      case division: std::cout << " divisão "; break;
+      case times: std::cout << " multiplicação "; break;
+      case assign: std::cout << " atribuição "; break;
     }
     right->printTree();
     return;
@@ -30,8 +38,8 @@ void Block::printTree(){
 
 void Variable::printTree(){
     if (next != NULL){
-        next->printTree();
-        std::cout << ", ";
+      next->printTree();
+      std::cout << ", ";
     }
     std::cout << id;
 }
@@ -66,7 +74,8 @@ int Block::computeTree(){
     }
     return 0;
 }
-*/
+
 std::string Variable::computeTree(){
     return symtab.entryList[id].value;
 }
+*/

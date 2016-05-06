@@ -1,4 +1,4 @@
-int: i, j;
-real: a;
-bool: comp;
-a := 10.0 + .57 - 2.;
+int i, j;
+real a;
+bool comp;
+a := 10 + 57 - 2;
