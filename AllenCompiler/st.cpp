@@ -21,24 +21,16 @@ void SymbolTable::updateSymbolTable(std::string strType) {
   if (strType.compare("int") == 0) type = integer;
   else if (strType.compare("real") == 0) type = real;
   else if (strType.compare("bool") == 0) type = boolean;
-  std::cout << "Declaração de variável tipo " << strType << ": ";
 
   for(auto undefined_symbol : undefined_types) {
-    if (begin(undefined_types)->first == undefined_symbol.first) {
-      std::cout << undefined_symbol.first;
-    } else {
-      std::cout << ", " << undefined_symbol.first;
-    }
     undefined_symbol.second->setType(type);
   }
-  std::cout << ";\n";
   undefined_types.clear();
 }
 
 AST::Node* SymbolTable::assignVariable(std::string id) {
   if (!checkId(id)) {
     yyerror("Variable not defined yet! %s\n", id.c_str());
-    return NULL;
   }
 
   entryList[id].initialized = true;

@@ -18,9 +18,9 @@ namespace AST {
 
   class Node {
   public:
+    // virtual void setNext(){ }
     virtual ~Node() {}
     virtual void printTree(){}
-    //virtual std::string computeTree(){return "";}
   };
 
   class Value : public Node {
@@ -29,7 +29,6 @@ namespace AST {
     Type type;
     Value(char* value, Type type) : value(value), type(type) {  }
     void printTree();
-    // std::string computeTree();
   };
 
   class BinOp : public Node {
@@ -39,7 +38,17 @@ namespace AST {
     Node *right;
     BinOp(Node *left, Operation op, Node *right) : left(left), right(right), op(op) { }
     void printTree();
-    // std::string computeTree();
+  };
+
+  class VarDeclaration : public Node {
+  public:
+    Type type;
+    VarDeclaration(std::string strType) {
+      if(strType == "int") type = integer;
+      else if(strType == "real") type = real;
+      else if(strType == "bool") type = boolean;
+   }
+    void printTree();
   };
 
   class Block : public Node {
@@ -47,17 +56,21 @@ namespace AST {
     NodeList lines;
     Block() { }
     void printTree();
-    // std::string computeTree();
   };
 
   class Variable : public Node {
   public:
     std::string id;
     Node *next;
+    void setNext(Node* node) {
+      if(next)
+        dynamic_cast<AST::Variable*>(next)->setNext(node);
+      else
+        next = node;
+    }
     Variable(std::string id, Node *next) :
       id(id),
       next(next) { }
     void printTree();
-    //std::string computeTree();
   };
 }

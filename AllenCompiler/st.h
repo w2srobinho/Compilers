@@ -26,20 +26,16 @@ class Symbol;
     public:
       Type type;         /*[Return] type of Symbol: integer, real, bool.*/
       Kind kind;         /*Kind of symbol: variable, function, etc.*/
-      // TODO check the need of that. Symbol table should not hold values!!!
-      //std::string value; /*Space to store a value while we are doing interpretation.*/
       bool initialized;  /*Defines if symbol has been initialized or not.*/
 
       Symbol(Type type, Kind kind, std::string value, bool initialized) :
         type(type),
         kind(kind),
-        //value(value),
         initialized(initialized) {  }
 
       Symbol() {
         type = undefined;
         kind = variable;
-        //value = "";
         initialized = false;
       }
 
@@ -71,7 +67,6 @@ class Symbol;
 
       AST::Node* newVariable(std::string id, AST::Node* next);
       AST::Node* assignVariable(std::string id);
-      /* TODO verificar a necessidade do método */
       AST::Node* useVariable(std::string id);
   };
 }

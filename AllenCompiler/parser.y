@@ -65,8 +65,10 @@ lines       : line { $$ = new AST::Block(); $$->lines.push_back($1); }
 
 line        : T_NL { $$ = NULL; } /*nothing here to be used */
             | expr T_END_LINE T_NL /*$$ = $1 when nothing is said*/
-            | vartype varlist T_END_LINE T_NL { symtab.updateSymbolTable($1);
-                                                $$ = $2; }
+            | vartype T_COLON varlist T_END_LINE T_NL { AST::Node* node = new AST::VarDeclaration($1);
+                                                        dynamic_cast<AST::Variable*>($3)->setNext(node);
+                                                        symtab.updateSymbolTable($1);
+                                                        $$ = $3; }
             | T_ID T_ASSIGN expr T_END_LINE { AST::Node* node = symtab.assignVariable($1);
                                               $$ = new AST::BinOp(node, AST::assign, $3); }
             ;

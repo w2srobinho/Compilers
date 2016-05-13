@@ -1,4 +1,4 @@
-int i, j;
-real a;
-bool comp;
-a := 10 + 57 - 2;
+int: papagaio, baleia;
+real: orca;
+bool: comp;
+papagaio := 10 + 57 - 2;
