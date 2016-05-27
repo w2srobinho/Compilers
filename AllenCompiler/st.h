@@ -12,34 +12,28 @@ namespace ST {
 
 class Symbol;
 
-  enum Type {
-    undefined,
-    integer,
-    real,
-    boolean
-  };
   enum Kind { variable };
 
   typedef std::map<std::string, Symbol> SymbolList; //Set of Symbols
 
   class Symbol {
     public:
-      Type type;         /*[Return] type of Symbol: integer, real, bool.*/
+      AST::Type type;         /*[Return] type of Symbol: integer, real, bool.*/
       Kind kind;         /*Kind of symbol: variable, function, etc.*/
       bool initialized;  /*Defines if symbol has been initialized or not.*/
 
-      Symbol(Type type, Kind kind, std::string value, bool initialized) :
+      Symbol(AST::Type type, Kind kind, std::string value, bool initialized) :
         type(type),
         kind(kind),
         initialized(initialized) {  }
 
       Symbol() {
-        type = undefined;
+        type = AST::undefined;
         kind = variable;
         initialized = false;
       }
 
-      void setType(Type type) {
+      void setType(AST::Type type) {
         this->type = type;
       }
   };

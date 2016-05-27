@@ -16,9 +16,9 @@ bools "TRUE"|"FALSE"
 %%
 
 [ \t]    ; //ignores spaces
-{digs}+    {yylval.types = yytext; return T_INT;}
-{bools}    {yylval.types = yytext; return T_BOOL;}
-{reals}    {yylval.types = yytext; return T_REAL;}
+{digs}+    {yylval.name = yytext; return T_INT;}
+{bools}    {yylval.name = yytext; return T_BOOL;}
+{reals}    {yylval.name = yytext; return T_REAL;}
 
 "+"        {return T_PLUS;}
 "-"        {return T_MINUS;}
@@ -31,7 +31,7 @@ bools "TRUE"|"FALSE"
 ">"        {return T_GREATER;}
 "<"        {return T_LESS;}
 ">="       {return T_GREATER_OR_EQUAL;}
-">="       {return T_LESS_OR_EQUAL;}
+"<="       {return T_LESS_OR_EQUAL;}
 
 "AND"      {return T_AND;}
 "OR"       {return T_OR;}
