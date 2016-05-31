@@ -71,6 +71,14 @@ namespace AST {
     void printTree();
   };
 
+
+  class Block : public Node {
+  public:
+    NodeList lines;
+    Block() { }
+    void printTree();
+  };
+
   class BinOp : public Node {
   public:
     Operation op;
@@ -112,42 +120,46 @@ namespace AST {
     void printTree();
   };
 
+  class Variable : public Node {
+  public:
+    std::string id;
+    Type type;
+    Variable(std::string id, Type type) :
+    id(id),
+    type(type) { }
+    void printTree();
+  };
+
   class ArrayDeclaration : public Node {
   public:
     Type type;
-    int size;
-    ArrayDeclaration(std::string strType, int size) :
-      size(size) {
-        std::cout << "este é o tamanho "<<size << std::endl;
+    std::string size;
+    NodeList nodes;
+    ArrayDeclaration(std::string strType, std::string size) :
+    size(size)
+    {
       if(strType == "int") type = integer;
       else if(strType == "real") type = real;
       else if(strType == "bool") type = boolean;
       else type = undefined;
     }
+    void setVarList(NodeList *varlist) {
+      nodes = *varlist;
+    }
     void printTree();
   };
 
-  class Block : public Node {
-  public:
-    NodeList lines;
-    Block() { }
-    void printTree();
-  };
-
-  class Variable : public Node {
+  class Array : public Node {
   public:
     std::string id;
-    Node* next;
     Type type;
-    void setNext(Node* node) {
-      if(next)
-        dynamic_cast<AST::Variable*>(next)->setNext(node);
-      else
-        next = node;
-    }
-    Variable(std::string id, Type type) :
+    Node* index;
+    Array(std::string id, Type type) :
       id(id),
       type(type) { }
     void printTree();
+    void setPosition(Node* node) {
+      index = node;
+    }
   };
 }

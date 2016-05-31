@@ -10,7 +10,6 @@ void yyerror(const char* s, ...);
 %option noyywrap nodefault yylineno
 
 digs [0-9]+
-nzero [1-9][0-9]*
 chars [a-z]
 reals [0-9]+\.[0-9]*|[0-9]*\.[0-9]+
 bools "TRUE"|"FALSE"
@@ -18,10 +17,10 @@ bools "TRUE"|"FALSE"
 %%
 
 [ \t]         ; //ignores spaces
-{digs}        {yylval.name = yytext; return T_INT;}
-{bools}       {yylval.name = yytext; return T_BOOL;}
-{reals}       {yylval.name = yytext; return T_REAL;}
-{nzero}       {yylval.int_val = std::atoi(yytext); return ARRAY_SIZE;}
+{digs}        {yylval.name = strdup(yytext); return T_INT;}
+{bools}       {yylval.name = strdup(yytext); return T_BOOL;}
+{reals}       {yylval.name = strdup(yytext); return T_REAL;}
+
 "+"           {return T_PLUS;}
 "-"           {return T_MINUS;}
 "*"           {return T_TIMES;}

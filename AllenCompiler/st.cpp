@@ -40,6 +40,18 @@ AST::Node* SymbolTable::assignVariable(std::string id) {
   return new AST::Variable(id, type); //Creates variable node anyway
 }
 
+AST::Node* SymbolTable::assignArray(std::string id) {
+  AST::Type type = AST::undefined;
+  if (!checkId(id)) {
+    yyerror("Variable not defined yet! %s\n", id.c_str());
+  }
+  else {
+    type = entryList[id].type;
+  }
+  entryList[id].initialized = true;
+  return new AST::Array(id, type); //Creates variable node anyway
+}
+
 AST::Node* SymbolTable::useVariable(std::string id) {
   AST::Type type = AST::undefined;
   if (!checkId(id))
@@ -51,4 +63,14 @@ AST::Node* SymbolTable::useVariable(std::string id) {
     yyerror("Variable not initialized yet! %s\n", id.c_str());
 
   return new AST::Variable(id, type); //Creates variable node anyway
+}
+
+AST::Node* SymbolTable::useArray(std::string id) {
+  AST::Type type = AST::undefined;
+  if (!checkId(id))
+    yyerror("Variable not defined yet! %s\n", id.c_str());
+  else {
+    type = entryList[id].type;
+  }
+  return new AST::Array(id, type); //Creates variable node anyway
 }

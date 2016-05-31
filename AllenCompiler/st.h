@@ -61,6 +61,8 @@ class Symbol;
 
       AST::Node* newVariable(std::string id);
       AST::Node* assignVariable(std::string id);
+      AST::Node* assignArray(std::string id);
       AST::Node* useVariable(std::string id);
+      AST::Node* useArray(std::string id);
   };
 }
