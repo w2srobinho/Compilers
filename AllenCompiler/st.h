@@ -59,7 +59,7 @@ class Symbol;
 
       void updateSymbolTable(std::string strType);
 
-      AST::Node* newVariable(std::string id, AST::Node* next);
+      AST::Node* newVariable(std::string id);
       AST::Node* assignVariable(std::string id);
       AST::Node* useVariable(std::string id);
   };

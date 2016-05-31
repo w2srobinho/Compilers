@@ -96,12 +96,34 @@ namespace AST {
   class VarDeclaration : public Node {
   public:
     Type type;
-    VarDeclaration(std::string strType) {
+    Node* next;
+    NodeList nodes;
+    void setNext(Node* node) {
+      next = node;
+    }
+    VarDeclaration(std::string strType, NodeList *varlist) :
+    nodes(*varlist)
+    {
       if(strType == "int") type = integer;
       else if(strType == "real") type = real;
       else if(strType == "bool") type = boolean;
       else type = undefined;
    }
+    void printTree();
+  };
+
+  class ArrayDeclaration : public Node {
+  public:
+    Type type;
+    int size;
+    ArrayDeclaration(std::string strType, int size) :
+      size(size) {
+        std::cout << "este é o tamanho "<<size << std::endl;
+      if(strType == "int") type = integer;
+      else if(strType == "real") type = real;
+      else if(strType == "bool") type = boolean;
+      else type = undefined;
+    }
     void printTree();
   };
 
@@ -115,7 +137,7 @@ namespace AST {
   class Variable : public Node {
   public:
     std::string id;
-    Node *next;
+    Node* next;
     Type type;
     void setNext(Node* node) {
       if(next)
@@ -123,9 +145,8 @@ namespace AST {
       else
         next = node;
     }
-    Variable(std::string id, Node *next, Type type) :
+    Variable(std::string id, Type type) :
       id(id),
-      next(next),
       type(type) { }
     void printTree();
   };

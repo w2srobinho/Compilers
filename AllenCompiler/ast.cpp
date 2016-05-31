@@ -52,19 +52,20 @@ void Block::printTree(){
         std::cout << std::endl;
     }
 }
+
 void Variable::printTree(){
-  if(next == NULL) {
-    std::cout << "variável " << typeName[type] << " " << id;
-    return;
-  }
-  if (next != NULL){
-    next->printTree();
-    std::cout << ", ";
-  }
-  std::cout << id;
+  std::cout << "variável " << typeName[type] << " " << id;
 }
 
 /*TODO Alterar a impressão de variável e da varDeclaration para que não fique com ": ," no final da impressão*/
 void VarDeclaration::printTree(){
   std::cout << "Declaração de variável " << typeName[ type] << ": ";
+  for (auto var = nodes.begin(); var != nodes.end(); var++) {
+        std::cout << dynamic_cast<Variable *>(*var)->id;
+        if(std::next(var) != nodes.end()) std::cout << ", ";
+    }
+}
+
+void ArrayDeclaration::printTree(){
+  std::cout << "Declaração de arranjo "<< typeName[type] << " de tamanho " << size << ": ";
 }

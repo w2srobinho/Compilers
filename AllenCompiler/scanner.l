@@ -1,5 +1,6 @@
 %{
 #include <string>
+#include <stdlib.h>
 #include "ast.h"
 #include "parser.h"
 extern int yylineno;
@@ -8,48 +9,51 @@ void yyerror(const char* s, ...);
 
 %option noyywrap nodefault yylineno
 
-digs [0-9]
+digs [0-9]+
+nzero [1-9][0-9]*
 chars [a-z]
 reals [0-9]+\.[0-9]*|[0-9]*\.[0-9]+
 bools "TRUE"|"FALSE"
 
 %%
 
-[ \t]    ; //ignores spaces
-{digs}+    {yylval.name = yytext; return T_INT;}
-{bools}    {yylval.name = yytext; return T_BOOL;}
-{reals}    {yylval.name = yytext; return T_REAL;}
+[ \t]         ; //ignores spaces
+{digs}        {yylval.name = yytext; return T_INT;}
+{bools}       {yylval.name = yytext; return T_BOOL;}
+{reals}       {yylval.name = yytext; return T_REAL;}
+{nzero}       {yylval.int_val = std::atoi(yytext); return ARRAY_SIZE;}
+"+"           {return T_PLUS;}
+"-"           {return T_MINUS;}
+"*"           {return T_TIMES;}
+"/"           {return T_DIVISION;}
 
-"+"        {return T_PLUS;}
-"-"        {return T_MINUS;}
-"*"        {return T_TIMES;}
-"/"        {return T_DIVISION;}
+":="          {return T_ASSIGN;}
+"="           {return T_EQUALS;}
+"~="          {return T_DIFFER;}
+">"           {return T_GREATER;}
+"<"           {return T_LESS;}
+">="          {return T_GREATER_OR_EQUAL;}
+"<="          {return T_LESS_OR_EQUAL;}
 
-":="       {return T_ASSIGN;}
-"="        {return T_EQUALS;}
-"~="       {return T_DIFFER;}
-">"        {return T_GREATER;}
-"<"        {return T_LESS;}
-">="       {return T_GREATER_OR_EQUAL;}
-"<="       {return T_LESS_OR_EQUAL;}
+"AND"         {return T_AND;}
+"OR"          {return T_OR;}
+"~"           {return T_NOT;}
 
-"AND"      {return T_AND;}
-"OR"       {return T_OR;}
-"~"        {return T_NOT;}
+"("           {return T_OPEN_PARENTHESES;}
+")"           {return T_CLOSE_PARENTHESES;}
+"["           {return T_OPEN_BRACKETS;}
+"]"           {return T_CLOSE_BRACKETS;}
+";"           {return T_END_LINE;}
+":"           {return T_COLON;}
 
-"("        {return T_OPEN_PARENTHESES;}
-")"        {return T_CLOSE_PARENTHESES;}
-";"        {return T_END_LINE;}
-":"        {return T_COLON;}
+","           {return T_COMMA;}
+\n            {return T_NL;}
+"int"         {yylval.name = strdup(yytext); return T_TYPE_INT;}
+"real"        {yylval.name = strdup(yytext); return T_TYPE_REAL;}
+"bool"        {yylval.name = strdup(yytext); return T_TYPE_BOOL;}
 
-","        {return T_COMMA;}
-\n         {return T_NL;}
-"int"      {yylval.name = strdup(yytext); return T_TYPE_INT;}
-"real"     {yylval.name = strdup(yytext); return T_TYPE_REAL;}
-"bool"     {yylval.name = strdup(yytext); return T_TYPE_BOOL;}
-
-{chars}+   {yylval.name = strdup(yytext); return T_ID;} // TODO Aumentar a range dos nomes das variáveis
-.          {yyerror("Unknown token! %c\n", *yytext);} /*complains about every unknown character*/
+{chars}+      {yylval.name = strdup(yytext); return T_ID;} // TODO Aumentar a range dos nomes das variáveis
+.             {yyerror("Unknown token! %c\n", *yytext);} /*complains about every unknown character*/
 
 %%
 

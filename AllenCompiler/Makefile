@@ -20,4 +20,4 @@ clean:
 	rm parser.cpp parser.h scanner.cpp ${OUTPUT}
 
 test: all
-	./${OUTPUT} < test/v1.0
+	./${OUTPUT} < test/v1.1

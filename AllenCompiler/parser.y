@@ -15,17 +15,20 @@
  * union informs the different ways we can store data
  */
 %union {
+  AST::NodeList *nodelist;
   AST::Node *node;
   AST::Block *block;
   const char *name;
+  int int_val;
 }
 
 /* token defines our terminal symbols (tokens).
  */
 %token <name> T_INT T_REAL T_BOOL
+%token <int_val> ARRAY_SIZE
 %token T_PLUS T_MINUS T_TIMES T_DIVISION
 %token T_EQUALS T_DIFFER T_GREATER T_LESS T_GREATER_OR_EQUAL T_LESS_OR_EQUAL
-%token T_AND T_OR T_NOT T_OPEN_PARENTS T_CLOSE_PARENTS
+%token T_AND T_OR T_NOT T_OPEN_PARENTHESES T_CLOSE_PARENTHESES T_OPEN_BRACKETS T_CLOSE_BRACKETS
 %token T_ASSIGN T_END_LINE T_COMMA T_COLON T_NL
 %token <name> T_TYPE_INT T_TYPE_REAL T_TYPE_BOOL T_ID
 
@@ -34,8 +37,9 @@
  * Example: %type<node> expr
  */
 %type <name> vartype
-%type <node> expr line varlist declaration assignment value
+%type <node> expr line declaration assignment value arraytype
 %type <block> lines program
+%type <nodelist> varlist
 
 /* Operator precedence for mathematical operators
  * The latest it is listed, the highest the precedence
@@ -66,23 +70,32 @@ lines       : line { $$ = new AST::Block(); $$->lines.push_back($1); }
 line        : T_NL { $$ = NULL; } /*nothing here to be used */
             | declaration T_END_LINE
             | assignment T_END_LINE
-            | expr error { yyerrok; $$ = $1; } /*just a point for error recovery*/
+            | line error { yyerrok; $$ = $1; } /*just a point for error recovery*/
             ;
 
-declaration : vartype T_COLON varlist { AST::Node* node = new AST::VarDeclaration($1);
-                                        dynamic_cast<AST::Variable*>($3)->setNext(node);
-                                        symtab.updateSymbolTable($1);
-                                        $$ = $3; }
+declaration : arraytype T_COLON varlist { $$ = $1; };
+            | vartype T_COLON varlist { $$ = new AST::VarDeclaration($1, $3);
+                                        symtab.updateSymbolTable($1); }
+            ;
+
+            /*$$ = $1 when nothing is said */
+vartype     : T_TYPE_INT
+            | T_TYPE_REAL
+            | T_TYPE_BOOL
+            ;
+
+arraytype   : vartype T_OPEN_BRACKETS ARRAY_SIZE T_CLOSE_BRACKETS { symtab.updateSymbolTable($1);
+                                                                    $$ = new AST::ArrayDeclaration($1, $3); }
+            ;
+
+varlist     : T_ID { $$ = new AST::NodeList;
+                     $$->push_back(symtab.newVariable($1)); }
+            | varlist T_COMMA T_ID { $$ = $1;
+                                     $$->push_back(symtab.newVariable($3)); }
             ;
 
 assignment  : T_ID T_ASSIGN expr { AST::Node* node = symtab.assignVariable($1);
                                    $$ = new AST::BinOp(node, AST::assign, $3); }
-            ;
-
-            /*$$ = $1 when nothing is said*/
-vartype     : T_TYPE_INT
-            | T_TYPE_REAL
-            | T_TYPE_BOOL
             ;
 
 expr        : value
@@ -111,8 +124,5 @@ value       : T_INT  { $$ = new AST::Value($1, AST::integer); }
             | T_ID { $$ = symtab.useVariable($1); }
             ;
 
-varlist     : T_ID { $$ = symtab.newVariable($1, NULL); }
-            | varlist T_COMMA T_ID { $$ = symtab.newVariable($3, $1); }
-            ;
 
 %%

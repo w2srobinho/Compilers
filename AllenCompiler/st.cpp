@@ -4,7 +4,7 @@ using namespace ST;
 
 extern SymbolTable symtab;
 
-AST::Node* SymbolTable::newVariable(std::string id, AST::Node* next) {
+AST::Node* SymbolTable::newVariable(std::string id) {
   if (checkId(id))
     yyerror("Variable redefinition! %s\n", id.c_str());
   else {
@@ -12,7 +12,7 @@ AST::Node* SymbolTable::newVariable(std::string id, AST::Node* next) {
     addSymbol(id,entry); //Adds variable to symbol table
     undefined_types[id] = &entryList[id];
   }
-  return new AST::Variable(id, next, AST::undefined); //Creates variable node anyway
+  return new AST::Variable(id, AST::undefined); //Creates variable node anyway
 }
 
 void SymbolTable::updateSymbolTable(std::string strType) {
@@ -37,7 +37,7 @@ AST::Node* SymbolTable::assignVariable(std::string id) {
     type = entryList[id].type;
   }
   entryList[id].initialized = true;
-  return new AST::Variable(id, NULL, type); //Creates variable node anyway
+  return new AST::Variable(id, type); //Creates variable node anyway
 }
 
 AST::Node* SymbolTable::useVariable(std::string id) {
@@ -50,5 +50,5 @@ AST::Node* SymbolTable::useVariable(std::string id) {
   if (!entryList[id].initialized)
     yyerror("Variable not initialized yet! %s\n", id.c_str());
 
-  return new AST::Variable(id, NULL, type); //Creates variable node anyway
+  return new AST::Variable(id, type); //Creates variable node anyway
 }
