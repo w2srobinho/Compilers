@@ -1,0 +1,8 @@
+var foco, forca, fe;
+
+func capitaoplaneta(terra, fogo, ar, agua) {
+  var coracao;
+  coracao = 2;
+}
+
+foco = 2;
