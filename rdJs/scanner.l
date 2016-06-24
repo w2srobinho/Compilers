@@ -13,7 +13,7 @@ reals [0-9]+\.[0-9]*|[0-9]*\.[0-9]+
 
 %%
 
-[ \t\n]             ; //ignores spaces
+[ \t\n]              ; //ignores spaces
 "TRUE"              {yylval.name = strdup(yytext); return BOOL;}
 "FALSE"             {yylval.name = strdup(yytext); return BOOL;}
 
@@ -36,6 +36,7 @@ reals [0-9]+\.[0-9]*|[0-9]*\.[0-9]+
 "var"               {return VAR;}
 "for"               {return FOR;}
 "func"              {return FUNC;}
+"return"            {return RETURN;}
 
 "("                 {return L_PARENT;}
 ")"                 {return R_PARENT;}

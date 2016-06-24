@@ -1,9 +1,5 @@
 %{
-  /*
-#include "ast.h"
-#include "st.h"
 
-ST::SymbolTable symtab;  /* main symbol table */
 const char *programRoot; /* the root node of our program AST:: */
 
 extern int yylex();
@@ -32,7 +28,7 @@ extern void yyerror(const char* s, ...);
  */
 %token OP_PLUS OP_TIMES OP_DIV OP_MINUS OP_AND OP_OR OP_NOT
 %token ASSIGN SEMI_COLON COMMA
-%token VAR FOR FUNC
+%token VAR FOR FUNC RETURN
 %token L_PARENT R_PARENT L_BRACES R_BRACES
 /*%token <comp> COMP*/
 %token <name> ID INT DOUBLE BOOL
@@ -41,7 +37,7 @@ extern void yyerror(const char* s, ...);
  * Types should match the names used in the union.
  * Example: %type<node> expr
  */
-%type <name> block vardeclaration funcdeclaration funcall for forscope assignment value param varlist
+%type <name> block vardeclaration funcdeclaration funcall for forscope assignment value param varlist funcscope
 %type <name> blocks program
 
 /* Operator precedence for mathematical operators
@@ -67,10 +63,10 @@ blocks  : block
         ;
 
 block   : vardeclaration SEMI_COLON
-        | funcdeclaration SEMI_COLON
         | funcall SEMI_COLON
         | assignment SEMI_COLON
-        | for SEMI_COLON
+        | funcdeclaration
+        | for
         | error SEMI_COLON {yyerrok; $$ = NULL;}
         ;
 
@@ -79,10 +75,12 @@ block   : vardeclaration SEMI_COLON
 */
 for : FOR L_PARENT forvalue SEMI_COLON forvalue R_PARENT L_BRACES forscope R_BRACES {$$ = $8; }
     ;
-forscope : vardeclaration
+
+forscope : vardeclaration SEMI_COLON
          | for
-         | assignment
+         | assignment SEMI_COLON
          ;
+
 forvalue : INT
          | DOUBLE
          | ID
@@ -94,6 +92,7 @@ forvalue : INT
  */
 vardeclaration : VAR varlist { $$ = $2; }
                ;
+
 varlist : ID
         | varlist COMMA ID { $$ = $3; }
         ;
@@ -104,6 +103,7 @@ varlist : ID
 */
 assignment : ID ASSIGN value { $$ = $3; }
            ;
+
 value : INT
       | DOUBLE
       | BOOL
@@ -114,10 +114,16 @@ value : INT
 /* function region
 * e.g. func umafuncao(idparam1, idparam2) { }
 */
-funcdeclaration : FUNC ID L_PARENT varlist R_PARENT L_BRACES block R_BRACES { $$ = $2; }
+funcdeclaration : FUNC ID L_PARENT varlist R_PARENT L_BRACES funcscope R_BRACES { $$ = $2; }
                 ;
+
+funcscope  : block
+           | funcscope block { $$ = $2; }
+           ;
+
 funcall : ID L_PARENT param R_PARENT
         ;
+
 param : value
       | param COMMA value { $$ = $3; }
       ;

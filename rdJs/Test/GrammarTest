@@ -1,8 +1,15 @@
 var foco, forca, fe;
 
+for (1; 1) {
+  foco = TRUE;
+}
+
 func capitaoplaneta(terra, fogo, ar, agua) {
   var coracao;
   coracao = 2;
+  capitaocaverna(coracao);
 }
 
-foco = 2;
+func capitaocaverna(caveeeerna) {
+  caveeeerna = FALSE;
+}

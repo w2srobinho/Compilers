@@ -7,7 +7,7 @@ OUTPUT=AllenCompiler
 
 all: flex yacc clang
 
-clang: *.cpp *.h
+clang:
 	${CC} -o ${OUTPUT} *.cpp ${LLVMPARAM} ${PARAM}
 
 yacc: parser.y
