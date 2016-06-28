@@ -1,9 +1,6 @@
 %{
-#include <cstdarg>
 #include <string>
-#include "ast.h"
 #include "parser.h"
-#include "support.h"
 extern int yylineno;
 void yyerror(const char* s, ...);
 %}
@@ -16,42 +13,46 @@ reals [0-9]+\.[0-9]*|[0-9]*\.[0-9]+
 
 %%
 
-[ \t\n]               ; //ignores spaces
-"TRUE"              {yylval.name = strdup(yytext); return BOOL_VAL;}
-"FALSE"             {yylval.name = strdup(yytext); return BOOL_VAL;}
+[ \t\n]              ; //ignores spaces
+"true"              {yylval.name = strdup(yytext); return BOOL;}
+"false"             {yylval.name = strdup(yytext); return BOOL;}
 
-{digs}              {yylval.name = strdup(yytext); return INT_VAL;}
-{reals}             {yylval.name = strdup(yytext); return REAL_VAL;}
+{digs}              {yylval.name = strdup(yytext); return INT;}
+{reals}             {yylval.name = strdup(yytext); return DOUBLE;}
 
 "+"                 {return OP_PLUS;}
 "*"                 {return OP_TIMES;}
 "/"                 {return OP_DIV;}
 "-"                 {return OP_MINUS;}
 
-"AND"               {return OP_AND;}
-"OR"                {return OP_OR;}
-"~"                 {return OP_NOT;}
+"&&"                {return OP_AND;}
+"||"                {return OP_OR;}
+"!"                 {return OP_NOT;}
 
-"="                 {yylval.comp = Ops::equal; return COMP;}
-"~="                {yylval.comp = Ops::diff; return COMP;}
-"<"                 {yylval.comp = Ops::less; return COMP;}
-">"                 {yylval.comp = Ops::great; return COMP;}
-"<="                {yylval.comp = Ops::lessEq; return COMP;}
-">="                {yylval.comp = Ops::greatEq; return COMP;}
+"=="                {return COMP;}
+"!="                {return COMP;}
+"<"                 {return COMP;}
+">"                 {return COMP;}
+"<="                {return COMP;}
+">="                {return COMP;}
 
-":"                 {return DOTS;}
-":="                {return ASSIGN;}
-";"                 {return END;}
+"="                 {return ASSIGN;}
+";"                 {return SEMI_COLON;}
 ","                 {return COMMA;}
 
-"real"              {return T_REAL;}
-"int"               {return T_INT;}
-"bool"              {return T_BOOL;}
+"var"               {return VAR;}
+"for"               {return FOR;}
+"if"                {return IF;}
+"else"              {return ELSE;}
+"func"              {return FUNC;}
+"return"            {return RETURN;}
 
-"("                 {return PAR_OP;}
-")"                 {return PAR_CL;}
+"("                 {return L_PARENT;}
+")"                 {return R_PARENT;}
+"{"                 {return L_BRACES;}
+"}"                 {return R_BRACES;}
 
-{chars}             {yylval.name = strdup(yytext); return T_ID;}
+{chars}             {yylval.name = strdup(yytext); return ID;}
 .                   {yyerror("lexico: simbolo desconhecido: %c.", *yytext);} /*complains about every unknown character*/
 
 %%

@@ -1,18 +1,10 @@
 %{
-#include "ast.h"
-#include "st.h"
 
-ST::SymbolTable symtab;  /* main symbol table */
-AST::Block *programRoot; /* the root node of our program AST:: */
+const char *programRoot; /* the root node of our program AST:: */
 
 extern int yylex();
 extern void yyerror(const char* s, ...);
 %}
-
-/*Suddenly, the union decided not to find things included before...*/
-%code requires{
-#include "support.h"
-}
 
 %define parse.trace
 
@@ -20,29 +12,29 @@ extern void yyerror(const char* s, ...);
  * union informs the different ways we can store data
  */
 %union {
-    AST::Node *node;        //Node of the syntax tree
-    AST::Block *block;      //List of nodes of syntax trees
-    AST::VarDeclaration *vars; //List of variables in a declaration
+    //AST::Node *node;        //Node of the syntax tree
+    //AST::Block *block;      //List of nodes of syntax trees
+    //AST::VarDeclaration *vars; //List of variables in a declaration
     const char *name;       //Names of variables and values
-    Ops::Operation comp;    //Comparison operations ( =, ~=, <, <=, >, >= )
+    //Ops::Operation comp;    //Comparison operations ( =, ~=, <, <=, >, >= )
 }
 
 /* token defines our terminal symbols (tokens).
  */
-%token OP_PLUS OP_TIMES OP_DIV OP_MINUS OP_AND OP_OR OP_NOT
-%token ASSIGN END DOTS COMMA
-%token T_REAL T_INT T_BOOL
-%token PAR_OP PAR_CL
-%token <comp> COMP
-%token <name> T_ID INT_VAL REAL_VAL BOOL_VAL
+%token OP_PLUS OP_TIMES OP_DIV OP_MINUS OP_AND OP_OR OP_NOT COMP
+%token ASSIGN SEMI_COLON COMMA
+%token VAR FOR FUNC RETURN IF ELSE
+%token L_PARENT R_PARENT L_BRACES R_BRACES
+/*%token <comp> COMP*/
+%token <name> ID INT DOUBLE BOOL
 
 /* type defines the type of our nonterminal symbols.
  * Types should match the names used in the union.
  * Example: %type<node> expr
  */
-%type <node> block decl assign target expr term
-%type <block> blocks program
-%type <vars> listvars
+%type <name> block vardeclaration funcdeclaration funcall for forscope assignment
+%type <name> value param varlist funcscope expr if else ifstmt
+%type <name> blocks program funcblock
 
 /* Operator precedence for mathematical operators
  * The later it is listed, the higher the precedence
@@ -55,74 +47,131 @@ extern void yyerror(const char* s, ...);
 %nonassoc OP_MIN_UN
 %nonassoc error
 
-/* Starting rule 
- */
 %start program
 
 %%
 
-/* A program is composed of blocks */
 program : blocks { programRoot = $1; }
         ;
 
-blocks  : block { $$ = new AST::Block(); if($1 != NULL) $$->lines.push_back($1); }
-        | blocks block { if($2 != NULL) $1->lines.push_back($2); }
+blocks  : block
+        | blocks block {$$ = $2; }
         ;
 
-/* Each block can be an assignment or a variable declaration */
-block   : decl END      {$$ = $1;}
-        | assign END    
-        | error END     {yyerrok; $$ = NULL;}
+block   : vardeclaration SEMI_COLON
+        | funcall SEMI_COLON
+        | assignment SEMI_COLON
+        | funcdeclaration
+        | for
+        | if
+        | error SEMI_COLON {yyerrok; $$ = NULL;}
         ;
 
-/********* Declaration **********/
-/* A declaration has a type and a list of variables */
-decl    : type DOTS listvars {$$ = $3;}
-        ;
+/* Variable declaration region.
+* e.g. var umnome, segundonome;
+*/
+vardeclaration : VAR varlist { $$ = $2; }
+;
 
-/* There are three types */
-type    : T_REAL { Types::lastType = Types::real; }
-        | T_INT  { Types::lastType = Types::integer; }
-        | T_BOOL { Types::lastType = Types::boolean; }
-        ;
+/* end declaration */
 
-/* A list of variables is composed of one or more names */
-listvars : T_ID { $$ = new AST::VarDeclaration(Types::lastType);
-                  $$->variables.push_back(symtab.newVariable($1, Types::lastType));  }
-         | listvars COMMA T_ID { $$ = $1;
-                                 $$->variables.push_back(symtab.newVariable($3, Types::lastType)); }
+/* Variable assignment region.
+* e.g. umnome = 1; segundonome = umnome;
+*/
+assignment : ID ASSIGN expr { $$ = $3; }
+;
+
+/* end assignment */
+
+/* for definition
+* e.g. for (12; 2) { scope }
+*/
+for : FOR L_PARENT forvalue SEMI_COLON forvalue R_PARENT L_BRACES forscope R_BRACES {$$ = $8; }
+    ;
+
+forscope : vardeclaration SEMI_COLON
+         | for
+         | if
+         | assignment SEMI_COLON
          ;
 
-/********* Assignement **********/
-/* Assignments have a target that receives the value of an expression */
-assign  : target ASSIGN expr { $$ = new AST::BinOp($1, Ops::assign, $3->coerce($1)); }
+forvalue : INT
+         | DOUBLE
+         | ID
+         ;
+/* end for */
+
+/* if region
+* e.g. if (expressão)
+          Corpo do if;
+       else {
+          Corpo do else;
+       }
+*/
+if : IF L_PARENT expr R_PARENT ifstmt { $$ = $5; }
+   ;
+
+ifstmt : L_BRACES blocks R_BRACES { $$ = $2; }
+       | L_BRACES blocks R_BRACES else { $$ = $2; }
+       //TODO
+      //  | block { $$ = $1; }
+      //  | block else { $$ = $1; }
+       ;
+
+else : ELSE L_BRACES blocks R_BRACES { $$ = $3; }
+     //TODO | ELSE block { $$ = $2; }
+     ;
+/* function region
+* e.g. func umafuncao(idparam1, idparam2) { }
+*/
+funcdeclaration : FUNC ID L_PARENT varlist R_PARENT L_BRACES funcscope R_BRACES { $$ = $2; }
+                ;
+
+funcscope  : funcblock
+           | funcscope funcblock { $$ = $2; }
+           ;
+funcblock : vardeclaration SEMI_COLON
+          | funcall SEMI_COLON
+          | assignment SEMI_COLON
+          | funcdeclaration
+          | for
+          | if
+          | RETURN expr SEMI_COLON { $$ = $2; }
+          ;
+
+funcall : ID L_PARENT param R_PARENT
         ;
 
-/*Targets of assignements can only be simple variables right now*/
-target  : T_ID      { $$ = symtab.assignVariable($1); }
+param : value
+      | param COMMA value { $$ = $3; }
+      ;
+/*end region */
+
+/* Expression region
+*/
+expr : value
+     | expr COMP expr { $$ = $1; }
+     | expr OP_PLUS expr { $$ = $1; }
+     | expr OP_TIMES expr { $$ = $1; }
+     | expr OP_DIV expr { $$ = $1; }
+     | expr OP_MINUS expr { $$ = $1; }
+     | expr OP_AND expr { $$ = $1; }
+     | expr OP_OR expr { $$ = $1; }
+     | OP_NOT expr { $$ = $2; }
+     | OP_MINUS expr %prec OP_MIN_UN { $$ = $2; }
+     | L_PARENT expr R_PARENT { $$ = $2; }
+     ;
+/*end region */
+
+/* General region */
+varlist : ID
+        | varlist COMMA ID { $$ = $3; }
         ;
 
-/*Expressions can be composed of one or more expressions, operations, variables, values, etc. */
-expr    : term              /*just copies the Node*/
-        | expr COMP expr { $$ = new AST::BinOp($1->coerce($3), $2, $3->coerce($1)); }
-        | expr OP_PLUS expr { $$ = new AST::BinOp($1->coerce($3), Ops::plus, $3->coerce($1)); }
-        | expr OP_TIMES expr { $$ = new AST::BinOp($1->coerce($3), Ops::times, $3->coerce($1)); }
-        | expr OP_DIV expr { $$ = new AST::BinOp($1->coerce($3), Ops::div, $3->coerce($1)); }
-        | expr OP_MINUS expr { $$ = new AST::BinOp($1->coerce($3), Ops::minus, $3->coerce($1)); }
-        | expr OP_AND expr { $$ = new AST::BinOp($1, Ops::andOp, $3); }
-        | expr OP_OR expr { $$ = new AST::BinOp($1, Ops::orOp, $3); }
-        | OP_NOT expr { $$ = new AST::UnOp($2, Ops::notOp); }
-        | OP_MINUS expr %prec OP_MIN_UN { $$ = new AST::UnOp($2, Ops::uMinus); }
-        | PAR_OP expr PAR_CL { $$ = new AST::UnOp($2, Ops::par); }
-        ;
-
-/*Lets call a term a simple variable or value*/
-term    : T_ID      { $$ = symtab.useVariable($1); }
-        | INT_VAL   { $$ = new AST::Value($1, Types::integer); }
-        | REAL_VAL  { $$ = new AST::Value($1, Types::real); }
-        | BOOL_VAL  { $$ = new AST::Value($1, Types::boolean); }
-        ;
-
+value : INT
+      | DOUBLE
+      | BOOL
+      | ID
+      ;
+/*end region */
 %%
-
-
