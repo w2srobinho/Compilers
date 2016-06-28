@@ -14,8 +14,8 @@ reals [0-9]+\.[0-9]*|[0-9]*\.[0-9]+
 %%
 
 [ \t\n]              ; //ignores spaces
-"TRUE"              {yylval.name = strdup(yytext); return BOOL;}
-"FALSE"             {yylval.name = strdup(yytext); return BOOL;}
+"true"              {yylval.name = strdup(yytext); return BOOL;}
+"false"             {yylval.name = strdup(yytext); return BOOL;}
 
 {digs}              {yylval.name = strdup(yytext); return INT;}
 {reals}             {yylval.name = strdup(yytext); return DOUBLE;}
@@ -29,12 +29,21 @@ reals [0-9]+\.[0-9]*|[0-9]*\.[0-9]+
 "||"                {return OP_OR;}
 "!"                 {return OP_NOT;}
 
+"=="                {return COMP;}
+"!="                {return COMP;}
+"<"                 {return COMP;}
+">"                 {return COMP;}
+"<="                {return COMP;}
+">="                {return COMP;}
+
 "="                 {return ASSIGN;}
 ";"                 {return SEMI_COLON;}
 ","                 {return COMMA;}
 
 "var"               {return VAR;}
 "for"               {return FOR;}
+"if"                {return IF;}
+"else"              {return ELSE;}
 "func"              {return FUNC;}
 "return"            {return RETURN;}
 

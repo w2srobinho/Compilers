@@ -1,15 +1,20 @@
 var foco, forca, fe;
-
+fe = foco + 3;
+forca = -(foco*(fe - (foco + fe)));
 for (1; 1) {
-  foco = TRUE;
+  if (fe >= 55) {
+    foco = true;
+  }
 }
-
-func capitaoplaneta(terra, fogo, ar, agua) {
-  var coracao;
-  coracao = 2;
-  capitaocaverna(coracao);
-}
-
-func capitaocaverna(caveeeerna) {
-  caveeeerna = FALSE;
+if (planetaindomal) {
+  func capitaoplaneta(terra, fogo, ar, agua) {
+    var coracao;
+    coracao = terra + fogo + ar + agua;
+    capitaocaverna(coracao);
+  }
+} else {
+  func capitaocaverna(caveeeerna) {
+    caveeeerna = false;
+    return caveeerna != true;
+  }
 }

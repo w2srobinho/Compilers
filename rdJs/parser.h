@@ -52,23 +52,25 @@ extern int yydebug;
     OP_AND = 262,
     OP_OR = 263,
     OP_NOT = 264,
-    ASSIGN = 265,
-    SEMI_COLON = 266,
-    COMMA = 267,
-    VAR = 268,
-    FOR = 269,
-    FUNC = 270,
-    RETURN = 271,
-    L_PARENT = 272,
-    R_PARENT = 273,
-    L_BRACES = 274,
-    R_BRACES = 275,
-    ID = 276,
-    INT = 277,
-    DOUBLE = 278,
-    BOOL = 279,
-    COMP = 280,
-    OP_MIN_UN = 281
+    COMP = 265,
+    ASSIGN = 266,
+    SEMI_COLON = 267,
+    COMMA = 268,
+    VAR = 269,
+    FOR = 270,
+    FUNC = 271,
+    RETURN = 272,
+    IF = 273,
+    ELSE = 274,
+    L_PARENT = 275,
+    R_PARENT = 276,
+    L_BRACES = 277,
+    R_BRACES = 278,
+    ID = 279,
+    INT = 280,
+    DOUBLE = 281,
+    BOOL = 282,
+    OP_MIN_UN = 283
   };
 #endif
 
@@ -77,7 +79,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 19 "parser.y" /* yacc.c:1909  */
+#line 14 "parser.y" /* yacc.c:1909  */
 
     //AST::Node *node;        //Node of the syntax tree
     //AST::Block *block;      //List of nodes of syntax trees
@@ -85,7 +87,7 @@ union YYSTYPE
     const char *name;       //Names of variables and values
     //Ops::Operation comp;    //Comparison operations ( =, ~=, <, <=, >, >= )
 
-#line 89 "parser.h" /* yacc.c:1909  */
+#line 91 "parser.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
