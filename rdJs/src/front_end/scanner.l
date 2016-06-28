@@ -1,4 +1,5 @@
 %{
+#include <cstdarg>
 #include <string>
 #include "parser.h"
 extern int yylineno;
