@@ -1,9 +1,13 @@
 %{
+  #include "st.h"
+  #include <iostream>
+  #include <string>
 
-const char *programRoot; /* the root node of our program AST:: */
+  ST::SymbolTable symtab;  /* main symbol table */
+  const char *programRoot; /* the root node of our program AST:: */
 
-extern int yylex();
-extern void yyerror(const char* s, ...);
+  extern int yylex();
+  extern void yyerror(const char* s, ...);
 %}
 
 %define parse.trace
@@ -12,11 +16,8 @@ extern void yyerror(const char* s, ...);
  * union informs the different ways we can store data
  */
 %union {
-    //AST::Node *node;        //Node of the syntax tree
-    //AST::Block *block;      //List of nodes of syntax trees
-    //AST::VarDeclaration *vars; //List of variables in a declaration
-    const char *name;       //Names of variables and values
-    //Ops::Operation comp;    //Comparison operations ( =, ~=, <, <=, >, >= )
+  int counter;
+  const char *name;       //Names of variables and values
 }
 
 /* token defines our terminal symbols (tokens).
@@ -33,8 +34,9 @@ extern void yyerror(const char* s, ...);
  * Example: %type<node> expr
  */
 %type <name> block vardeclaration funcdeclaration funcall for forscope assignment
-%type <name> value param varlist funcscope expr if else ifstmt
+%type <name> value varlist funcscope expr if else ifstmt
 %type <name> blocks program funcblock
+%type <counter> args params
 
 /* Operator precedence for mathematical operators
  * The later it is listed, the higher the precedence
@@ -73,13 +75,18 @@ block   : vardeclaration SEMI_COLON
 vardeclaration : VAR varlist { $$ = $2; }
 ;
 
+varlist : ID { symtab.newVariable($1, ST::Kind::variable, false); }
+        | varlist COMMA ID { symtab.newVariable($3, ST::Kind::variable, false);
+                             $$ = $3; }
+        ;
 /* end declaration */
 
 /* Variable assignment region.
 * e.g. umnome = 1; segundonome = umnome;
 */
-assignment : ID ASSIGN expr { $$ = $3; }
-;
+assignment : ID ASSIGN expr { symtab.assignVariable($1);
+                              $$ = $3; }
+           ;
 
 /* end assignment */
 
@@ -113,7 +120,7 @@ if : IF L_PARENT expr R_PARENT ifstmt { $$ = $5; }
 
 ifstmt : L_BRACES blocks R_BRACES { $$ = $2; }
        | L_BRACES blocks R_BRACES else { $$ = $2; }
-       //TODO
+       //TODO do this without give any shift/reduce conflict warning
       //  | block { $$ = $1; }
       //  | block else { $$ = $1; }
        ;
@@ -124,7 +131,8 @@ else : ELSE L_BRACES blocks R_BRACES { $$ = $3; }
 /* function region
 * e.g. func umafuncao(idparam1, idparam2) { }
 */
-funcdeclaration : FUNC ID L_PARENT varlist R_PARENT L_BRACES funcscope R_BRACES { $$ = $2; }
+funcdeclaration : FUNC ID L_PARENT args R_PARENT L_BRACES funcscope R_BRACES { symtab.newFunction($2, ST::Kind::function, $4);
+                                                                               $$ = $2; }
                 ;
 
 funcscope  : funcblock
@@ -139,11 +147,14 @@ funcblock : vardeclaration SEMI_COLON
           | RETURN expr SEMI_COLON { $$ = $2; }
           ;
 
-funcall : ID L_PARENT param R_PARENT
+funcall : ID L_PARENT params R_PARENT { symtab.useFunction($1, $3); }
         ;
 
-param : value
-      | param COMMA value { $$ = $3; }
+args : ID { symtab.newVariable($1, ST::Kind::variable, true); $$ = 1;}
+     | args COMMA ID { symtab.newVariable($3, ST::Kind::variable, true); $$ += 1; }
+     ;
+params : value { $$ = 1; }
+      | params COMMA value { $$ += 1; }
       ;
 /*end region */
 
@@ -164,14 +175,10 @@ expr : value
 /*end region */
 
 /* General region */
-varlist : ID
-        | varlist COMMA ID { $$ = $3; }
-        ;
-
 value : INT
       | DOUBLE
       | BOOL
-      | ID
+      | ID { symtab.useVariable($1); }
       ;
 /*end region */
 %%
