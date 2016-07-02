@@ -5,10 +5,17 @@
 
   ST::SymbolTable symtab;  /* main symbol table */
   const char *programRoot; /* the root node of our program AST:: */
+  typedef std::map<std::string, ST::SymbolTable> SymbolTableList; //Keep  track of created symbol tables
+  ST::SymbolTable *tablePointer = &symtab; //Initialize my pointer pointing to main table
 
   extern int yylex();
   extern void yyerror(const char* s, ...);
 %}
+
+/*Suddenly, the union decided not to find things included before...*/
+// %code requires{
+  // #include "st.h"
+// }
 
 %define parse.trace
 
@@ -34,7 +41,7 @@
  * Example: %type<node> expr
  */
 %type <name> block vardeclaration funcdeclaration funcall for forscope assignment
-%type <name> value varlist funcscope expr if else ifstmt
+%type <name> value varlist expr if else ifstmt createscope funcscope
 %type <name> blocks program funcblock
 %type <counter> args params
 
@@ -66,17 +73,17 @@ block   : vardeclaration SEMI_COLON
         | funcdeclaration
         | for
         | if
-        | error SEMI_COLON {yyerrok; $$ = NULL;}
+        | error SEMI_COLON { yyerrok; $$ = NULL; }
         ;
 
 /* Variable declaration region.
 * e.g. var umnome, segundonome;
 */
 vardeclaration : VAR varlist { $$ = $2; }
-;
+               ;
 
-varlist : ID { symtab.newVariable($1, ST::Kind::variable, false); }
-        | varlist COMMA ID { symtab.newVariable($3, ST::Kind::variable, false);
+varlist : ID { tablePointer->newVariable($1, ST::Kind::variable, false); }
+        | varlist COMMA ID { tablePointer->newVariable($3, ST::Kind::variable, false);
                              $$ = $3; }
         ;
 /* end declaration */
@@ -84,7 +91,7 @@ varlist : ID { symtab.newVariable($1, ST::Kind::variable, false); }
 /* Variable assignment region.
 * e.g. umnome = 1; segundonome = umnome;
 */
-assignment : ID ASSIGN expr { symtab.assignVariable($1);
+assignment : ID ASSIGN expr { tablePointer->assignVariable($1);
                               $$ = $3; }
            ;
 
@@ -131,27 +138,32 @@ else : ELSE L_BRACES blocks R_BRACES { $$ = $3; }
 /* function region
 * e.g. func umafuncao(idparam1, idparam2) { }
 */
-funcdeclaration : FUNC ID L_PARENT args R_PARENT L_BRACES funcscope R_BRACES { symtab.newFunction($2, ST::Kind::function, $4);
-                                                                               $$ = $2; }
+funcdeclaration : FUNC ID L_PARENT createscope args R_PARENT L_BRACES funcscope endscope R_BRACES {
+  tablePointer->newFunction($2, ST::Kind::function, $5);
+  $$ = $2; }
                 ;
+createscope : { tablePointer = new ST::SymbolTable(tablePointer); }
+            ;
+endscope : { tablePointer = &symtab; }
+         ;
 
 funcscope  : funcblock
            | funcscope funcblock { $$ = $2; }
            ;
+
 funcblock : vardeclaration SEMI_COLON
           | funcall SEMI_COLON
           | assignment SEMI_COLON
-          | funcdeclaration
           | for
           | if
           | RETURN expr SEMI_COLON { $$ = $2; }
           ;
 
-funcall : ID L_PARENT params R_PARENT { symtab.useFunction($1, $3); }
+funcall : ID L_PARENT params R_PARENT { tablePointer->useFunction($1, $3); $$ = $1; }
         ;
 
-args : ID { symtab.newVariable($1, ST::Kind::variable, true); $$ = 1;}
-     | args COMMA ID { symtab.newVariable($3, ST::Kind::variable, true); $$ += 1; }
+args : ID { tablePointer->newVariable($1, ST::Kind::variable, true); $$ = 1;}
+     | args COMMA ID { tablePointer->newVariable($3, ST::Kind::variable, true); $$ += 1; }
      ;
 params : value { $$ = 1; }
       | params COMMA value { $$ += 1; }
@@ -178,7 +190,7 @@ expr : value
 value : INT
       | DOUBLE
       | BOOL
-      | ID { symtab.useVariable($1); }
+      | ID { tablePointer->useVariable($1); }
       ;
 /*end region */
 %%

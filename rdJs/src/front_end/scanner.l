@@ -1,9 +1,9 @@
 %{
-#include <cstdarg>
-#include <string>
-#include "parser.h"
-extern int yylineno;
-void yyerror(const char* s, ...);
+  #include <cstdarg>
+  #include <string>
+  #include "parser.h"
+  extern int yylineno;
+  void yyerror(const char* s, ...);
 %}
 
 %option noyywrap nodefault yylineno
@@ -59,9 +59,9 @@ reals [0-9]+\.[0-9]*|[0-9]*\.[0-9]+
 %%
 
 void yyerror(const char *s, ...){
-    va_list ap;
-    va_start(ap, s);
-    std::fprintf(stderr, "[Linha %d] Erro ", yylineno);
-    std::vfprintf(stderr, s, ap);
-    std::fprintf(stderr, "\n");
+  va_list ap;
+  va_start(ap, s);
+  std::fprintf(stderr, "[Linha %d] Erro ", yylineno);
+  std::vfprintf(stderr, s, ap);
+  std::fprintf(stderr, "\n");
 }

@@ -4,7 +4,7 @@ foco = 55;
 fe = foco + 3;
 forca = -(foco*(fe - (foco + fe)));
 
-for (1; 1) {
+for (10; 1) {
   if (fe >= 55) {
     foco = true;
   }
@@ -13,6 +13,8 @@ var planetacomproblemas;
 planetacomproblemas = true;
 
 func capitaocaverna(caveeeerna) {
+  var forca;
+  fe = false;
   caveeeerna = false;
   return caveeeerna != true;
 }
@@ -24,5 +26,5 @@ if (planetacomproblemas) {
     capitaocaverna(coracao);
   }
 } else {
-    var a;
+    forca = 2;
 }

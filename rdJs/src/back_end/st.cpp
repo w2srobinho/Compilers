@@ -2,10 +2,8 @@
 #include <iostream>
 using namespace ST;
 
-extern SymbolTable symtab;
-
 void SymbolTable::newVariable(std::string id, ST::Kind kind, bool initialized){
-  if (checkId(id)) yyerror("Variable %s alredy defined.", id.c_str());
+  if (checkDeclaration(id)) yyerror("Variable %s alredy defined.", id.c_str());
   else {
     Symbol entry(kind, initialized);
     addSymbol(id,entry); //Adds variable to symbol table
@@ -42,7 +40,8 @@ void SymbolTable::useFunction(std::string id, int paramNumber){
   if (!checkId(id)) {
     yyerror("Variable '%s' not declared.", id.c_str());
   } else {
-    if (entryList[id].params != paramNumber)
-      yyerror("Function '%s' expect %i parameters, received %i.", id.c_str(), entryList[id].params, paramNumber);
+    int args = params(id);
+    if (args != paramNumber)
+      yyerror("Function '%s' expect %d parameters, received %d.", id.c_str(), args, paramNumber);
   }
 }
