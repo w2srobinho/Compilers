@@ -1,5 +1,6 @@
 #include "st.h"
 #include <iostream>
+
 using namespace ST;
 
 void SymbolTable::newVariable(std::string id, ST::Kind kind, bool initialized){

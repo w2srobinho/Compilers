@@ -15,6 +15,7 @@ planetacomproblemas = true;
 func capitaocaverna(caveeeerna) {
   var forca;
   fe = false;
+  func local() { forca = 1; }
   caveeeerna = false;
   return caveeeerna != true;
 }
@@ -26,5 +27,8 @@ if (planetacomproblemas) {
     capitaocaverna(coracao);
   }
 } else {
-    forca = 2;
+  func local() {
+    coracao = true;
+    var forca;
+  }
 }

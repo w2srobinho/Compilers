@@ -2,11 +2,11 @@
   #include "st.h"
   #include <iostream>
   #include <string>
+  #include <vector>
 
-  ST::SymbolTable symtab;  /* main symbol table */
   const char *programRoot; /* the root node of our program AST:: */
-  typedef std::map<std::string, ST::SymbolTable> SymbolTableList; //Keep  track of created symbol tables
-  ST::SymbolTable *tablePointer = &symtab; //Initialize my pointer pointing to main table
+
+  ST::SymbolTable *tablePointer = ST::scopeStack.back(); /*Initialize table pointer pointing to main table*/
 
   extern int yylex();
   extern void yyerror(const char* s, ...);
@@ -142,9 +142,12 @@ funcdeclaration : FUNC ID L_PARENT createscope args R_PARENT L_BRACES funcscope 
   tablePointer->newFunction($2, ST::Kind::function, $5);
   $$ = $2; }
                 ;
-createscope : { tablePointer = new ST::SymbolTable(tablePointer); }
+createscope : %empty { tablePointer = new ST::SymbolTable(tablePointer);
+                ST::scopeStack.push_back(tablePointer);}
             ;
-endscope : { tablePointer = &symtab; }
+endscope : %empty { delete tablePointer;
+             ST::scopeStack.pop_back();
+             tablePointer = ST::scopeStack.back(); }
          ;
 
 funcscope  : funcblock
@@ -154,6 +157,7 @@ funcscope  : funcblock
 funcblock : vardeclaration SEMI_COLON
           | funcall SEMI_COLON
           | assignment SEMI_COLON
+          | funcdeclaration
           | for
           | if
           | RETURN expr SEMI_COLON { $$ = $2; }
@@ -162,7 +166,8 @@ funcblock : vardeclaration SEMI_COLON
 funcall : ID L_PARENT params R_PARENT { tablePointer->useFunction($1, $3); $$ = $1; }
         ;
 
-args : ID { tablePointer->newVariable($1, ST::Kind::variable, true); $$ = 1;}
+args : %empty {}
+     | ID { tablePointer->newVariable($1, ST::Kind::variable, true); $$ = 1;}
      | args COMMA ID { tablePointer->newVariable($3, ST::Kind::variable, true); $$ += 1; }
      ;
 params : value { $$ = 1; }

@@ -1,9 +1,12 @@
 /*Symbol Table definition*/
+#ifndef BACK_END_ST_H
+#define BACK_END_ST_H
 #pragma once
 
 #include <map>
 //#include "ast.h"
 #include <iostream>
+#include <vector>
 
 extern void yyerror(const char* s, ...);
 
@@ -30,7 +33,8 @@ namespace ST {
     public:
       SymbolList entryList;
       SymbolTable *parent;
-      SymbolTable(SymbolTable *pai = NULL) {parent = pai;}
+      SymbolTable() : parent(nullptr) {}
+      SymbolTable(SymbolTable *father) { parent = father; }
 
       void newVariable(std::string id, Kind kind, bool initialized);
       void newFunction(std::string id, Kind kind, int argsNumber);
@@ -55,4 +59,7 @@ namespace ST {
           return parent->params(id);
       }
   };
+
+  static std::vector<ST::SymbolTable*> scopeStack(1, new SymbolTable()); /*Keep  track of created symbol tables*/
 }
+#endif
