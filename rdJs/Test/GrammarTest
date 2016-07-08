@@ -28,7 +28,6 @@ if (planetacomproblemas) {
   }
 } else {
   func local() {
-    coracao = true;
     var forca;
   }
 }

@@ -1,14 +1,15 @@
 #include <iostream>
+#include "ast.h"
 
-extern const char *programRoot; //set on Bison file
+extern AST::Block *programRoot; //set on Bison file
 extern int yyparse();
 extern int yydebug;
 
 int main(int argc, char **argv)
 {
-    //yydebug = 1;              //remove comment to have verbose debug messages
-    yyparse();                  //parses whole data
-    //programRoot->printTree();   //print the ASTs
-    std::cout << programRoot << std::endl;
-    return 0;
+  //yydebug = 1;              //remove comment to have verbose debug messages
+  yyparse();                  //parses whole data
+  programRoot->printTree();   //print the ASTs
+  std::cout << "Finnished!" << std::endl;
+  return 0;
 }

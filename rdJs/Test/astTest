@@ -1,0 +1,14 @@
+var aaa, bbb, ccc;
+aaa = 1 + 2 + bbb * (ccc - 3);
+bbb = 0;
+if (aaa > bbb){
+  var d, e;
+} else {
+  var f, g;
+}
+
+func capitaocaverna(aaa, bbb){
+  if(aaa){
+    var kkk;
+  }
+}
