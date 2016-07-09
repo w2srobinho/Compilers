@@ -7,8 +7,12 @@ if (aaa > bbb){
   var f, g;
 }
 
-func capitaocaverna(aaa, bbb){
-  if(aaa){
+func capitaocaverna(z, y){
+  if(z){
     var kkk;
   }
+}
+capitaocaverna(aaa, bbb);
+for (ccc; 2) {
+  bbb = 2 + 2;
 }

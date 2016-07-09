@@ -47,7 +47,7 @@
  * Example: %type<node> expr
  */
 %type <node> block vardeclaration funcdeclaration funcall for assignment
-%type <node> value expr else if createscope funcblock forblock
+%type <node> forvalue value expr else if createscope funcblock forblock
 
 %type <block> blocks program funcscope forscope
 %type <vardeclaration> varlist
@@ -111,7 +111,7 @@ assignment : ID ASSIGN expr { tablePointer->assignVariable($1);
 /* for definition
 * e.g. for (12; 2) { scope }
 */
-for : FOR L_PARENT forvalue SEMI_COLON forvalue R_PARENT L_BRACES forscope R_BRACES {$$ = $8; }
+for : FOR L_PARENT forvalue SEMI_COLON forvalue R_PARENT L_BRACES forscope R_BRACES { $$ = new AST::For($3, $5, $8); }
     ;
 
 forscope : forblock { $$ = new AST::Block(); if($1 != NULL) $$->lines.push_back($1); }
@@ -124,9 +124,10 @@ forblock : vardeclaration SEMI_COLON
          | assignment SEMI_COLON
          ;
 
-forvalue : INT
-         | DOUBLE
-         | ID
+forvalue : INT { $$ = new AST::Value($1, AST::Type::integer); }
+         | DOUBLE { $$ = new AST::Value($1, AST::Type::real); }
+         | ID { tablePointer->useVariable($1);
+             $$ = new AST::Variable($1, AST::Type::unknown); }
          ;
 /* end for */
 

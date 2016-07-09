@@ -105,5 +105,17 @@ namespace AST {
         id(id),
         params(params) { }
       void printTree();
-  }
+  };
+
+  class For : public Node {
+    public:
+      Node *interactions;
+      Node *adder;
+      Node *loop;
+      For(Node *i, Node *a, Node *l) :
+        interactions(i),
+        adder(a),
+        loop(l) {}
+      void printTree();
+  };
 }

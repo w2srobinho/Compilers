@@ -48,7 +48,7 @@ void Value::printTree(){
 }
 
 void If::printTree() {
-  std::cout << "if " << std::endl;
+  std::cout << "if ";
   expression->printTree();
   std::cout << "them " << std::endl;
   them->printTree();
@@ -66,4 +66,23 @@ void FuncDeclaration::printTree() {
   std::cout << ") {" << std::endl;
   block->printTree();
   std::cout << "}" << std::endl;
+}
+
+void FunCall::printTree() {
+  std::cout << id << "(";
+  for (auto param : *params) {
+    param->printTree();
+  }
+  std::cout << ");" << std::endl;
+}
+
+void For::printTree() {
+  std::cout << "for (";
+  interactions->printTree();
+  std::cout << "; ";
+  adder->printTree();
+  std::cout << ") {" << std::endl;
+  loop->printTree();
+  std::cout << "}" << std::endl;
+
 }
