@@ -5,9 +5,6 @@ endif()
 set(_GTEST_INCLUDED TRUE)
 find_package(Threads REQUIRED)
 
-# check if third party dir exist
-include(dependencies)
-
 # get_gtest (output_dir ARGN): Function to take a googletest dependecy.
 #                              A output_dir needs to be passed.
 #                              GTEST_ROOT_DIR Set path to googletest root directory

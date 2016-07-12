@@ -1,3 +1,3 @@
 project(cmake-skeleton-tests)
 
-add_subdirectory(google_sample_tests)
+add_subdirectory(llvm_tests)

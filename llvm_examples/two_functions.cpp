@@ -3,9 +3,9 @@
 #include "llvm/IR/LLVMContext.h"    //for Context
 #include "llvm/IR/Module.h"         //for Module
 #include "llvm/ExecutionEngine/ExecutionEngine.h" //for JIT
-#include "llvm/ExecutionEngine/JIT.h"             //for JIT
+#include "llvm/ExecutionEngine/MCJIT.h"             //for JIT
 
-#include "llvm/Analysis/Verifier.h" //for verification
+#include "llvm/IR/Verifier.h" //for verification
 
 #include <iostream>
 #include <vector>

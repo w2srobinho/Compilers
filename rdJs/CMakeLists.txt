@@ -3,14 +3,18 @@ cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-option(build_tests "Build all tests Project." OFF)
+option(build_tests "Build all tests Project." ON)
 
 include(setup)
 include(bison_flex)
+include(llvm)
+
+#message(STATUS "##LLVM INCLUDES: ${LLVM_INCLUDE_DIRS}")
+#message(STATUS "##LLVM definitions: ${LLVM_DEFINITIONS}")
 
 # sources
-add_subdirectory(src/back_end)
-add_subdirectory(src/front_end)
+add_subdirectory(src/backend)
+add_subdirectory(src/frontend)
 
 # third_party
 if(build_tests)
