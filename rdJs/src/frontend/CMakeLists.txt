@@ -7,7 +7,7 @@ ADD_FLEX_BISON_DEPENDENCY(RdJsScanner RdJsParser)
 
 include_directories(
     ${CMAKE_CURRENT_BINARY_DIR}
-    ${back_end_SOURCE_DIR}
+    ${backend_SOURCE_DIR}
 )
 
 add_executable(rdjs ${BISON_RdJsParser_OUTPUTS} ${FLEX_RdJsScanner_OUTPUTS} main.cpp)

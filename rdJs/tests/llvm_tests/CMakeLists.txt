@@ -2,7 +2,7 @@ project(llvm_tests CXX C)
 
 set(SOURCE_FILES
     single_main.cpp
-    two_functions.cpp
+#    two_functions.cpp
 )
 
 include_directories(${LLVM_INCLUDE_DIRS})

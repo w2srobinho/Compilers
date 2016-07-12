@@ -123,4 +123,5 @@ int main() {
 //    // Translate the pointer and run our main to get its results
 //    int (*result)() = (int (*)())(intptr_t)mainPointer;
 //    std::cout << "Result of our main = " << result() << std::endl;
+    return 0;
 }
