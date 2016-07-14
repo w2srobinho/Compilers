@@ -1,0 +1,7 @@
+var foco, fe;
+
+for (10; 1) {
+  if (fe >= 55) {
+    foco = true;
+  }
+}

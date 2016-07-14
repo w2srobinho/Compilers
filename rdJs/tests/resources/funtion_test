@@ -1,0 +1,9 @@
+var forca, fe;
+
+func capitaocaverna(caveeeerna) {
+  var forca;
+  fe = false;
+  func local() { forca = 1; }
+  caveeeerna = false;
+  return caveeeerna != true;
+}
