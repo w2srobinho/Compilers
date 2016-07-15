@@ -2,4 +2,4 @@ var foco, forca, fe;
 
 foco = 55;
 fe = foco + 3;
-forca = -(foco*(fe - (foco + fe)));
+forca = (foco*(fe - (foco + fe)));

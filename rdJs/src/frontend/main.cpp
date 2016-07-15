@@ -13,8 +13,8 @@ int main(int argc, char **argv)
   //yydebug = 1;              //remove comment to have verbose debug messages
   yyparse();                  //parses whole data
 
-  //programRoot->Codegen();   //Generate code
-  //TheModule->dump(); // Print out all of the generated code.
+  programRoot->Codegen();   //Generate code
+  TheModule->dump(); // Print out all of the generated code.
 
   std::cout << "Finnished!" << std::endl;
   return 0;
