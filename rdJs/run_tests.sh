@@ -1,7 +1,14 @@
 #!/bin/bash
 
-APP="build/src/frontend/rdjs"
-TEST_FILES="tests/resurces"
+BASEDIR=$(dirname "$0")
+APP="$BASEDIR/build/src/frontend/rdjs"
+TEST_FILES="$BASEDIR/tests/resources"
+
+if [ ! -f $APP ]; then
+    echo "Projeto precisa ser compilado para rodar os testes"
+    exit 0
+fi
+
 
 for entry in $TEST_FILES/*
 do
