@@ -5,7 +5,7 @@
   #include <string>
   #include <vector>
 
-  AST::Block *programRoot; /* the root node of our program AST:: */
+  AST::Main *programRoot; /* the root node of our program AST:: */
 
   ST::SymbolTable *tablePointer = ST::scopeStack.back(); /*Initialize table pointer pointing to main table*/
 
@@ -68,7 +68,7 @@
 
 %%
 
-program : blocks { programRoot = $1; }
+program : blocks { programRoot = new AST::Main($1); }
         ;
 
 blocks  : block { $$ = new AST::Block(); if($1 != NULL) $$->lines.push_back($1); }
@@ -81,6 +81,7 @@ block   : vardeclaration SEMI_COLON
         | funcdeclaration
         | for
         | if
+        | expr SEMI_COLON
         | error SEMI_COLON { yyerrok; $$ = NULL; }
         ;
 
@@ -92,9 +93,9 @@ vardeclaration : VAR varlist { $$ = $2; }
 
 varlist : ID { $$ = new AST::VarDeclaration(AST::Type::unknown);
                tablePointer->newVariable($1, ST::Kind::variable, false);
-               $$->variables.push_back(new AST::Variable($1, AST::Type::unknown)); }
+               $$->variables.push_back(new AST::Variable($1, AST::Usage::declare)); }
         | varlist COMMA ID { tablePointer->newVariable($3, ST::Kind::variable, false);
-                             $1->variables.push_back(new AST::Variable($3, AST::Type::unknown)); }
+                             $1->variables.push_back(new AST::Variable($3, AST::Usage::declare)); }
         ;
 /* end declaration */
 
@@ -102,7 +103,7 @@ varlist : ID { $$ = new AST::VarDeclaration(AST::Type::unknown);
 * e.g. umnome = 1; segundonome = umnome;
 */
 assignment : ID ASSIGN expr { tablePointer->assignVariable($1);
-                              AST::Node *node = new AST::Variable($1, AST::Type::unknown);
+                              AST::Node *node = new AST::Variable($1, AST::Usage::store);
                               $$ = new AST::BinOp(node, AST::Operation::assign, $3); }
            ;
 
@@ -124,10 +125,10 @@ forblock : vardeclaration SEMI_COLON
          | assignment SEMI_COLON
          ;
 
-forvalue : INT { $$ = new AST::Value($1, AST::Type::integer); }
-         | DOUBLE { $$ = new AST::Value($1, AST::Type::real); }
+forvalue : INT { $$ = new AST::Number($1, AST::Type::integer); }
+         | DOUBLE { $$ = new AST::Number($1, AST::Type::real); }
          | ID { tablePointer->useVariable($1);
-             $$ = new AST::Variable($1, AST::Type::unknown); }
+             $$ = new AST::Variable($1, AST::Usage::load); }
          ;
 /* end for */
 
@@ -184,17 +185,17 @@ funcblock : vardeclaration SEMI_COLON
 funcall : ID L_PARENT params R_PARENT { tablePointer->useFunction($1, $3->size()); $$ = new AST::FunCall($1, $3); }
         ;
 
-args : %empty {}
-     | ID { AST::Node *argument = new AST::Variable($1, AST::unknown);
+args : %empty {$$ = new std::vector<AST::Node*>;}
+     | ID { AST::Node *argument = new AST::Variable($1, AST::Usage::load);
             tablePointer->newVariable($1, ST::Kind::variable, true);
             $$ = new std::vector<AST::Node*> { argument };
           }
      | args COMMA ID { tablePointer->newVariable($3, ST::Kind::variable, true);
-                       $$->push_back(new AST::Variable($3, AST::unknown));
+                       $$->push_back(new AST::Variable($3, AST::Usage::load));
                      }
      ;
 
-params : %empty {}
+params : %empty {$$ = new std::vector<AST::Node*>;}
      | value { $$ = new std::vector<AST::Node*> { $1 }; }
      | params COMMA value { $$->push_back($3); }
      ;
@@ -209,7 +210,7 @@ expr : value
      | expr OP_DIV expr { $$ = new AST::BinOp($1, AST::Operation::division, $3); }
      | expr OP_AND expr { $$ = new AST::BinOp($1, AST::Operation::andop, $3); }
      | expr OP_OR expr { $$ = new AST::BinOp($1, AST::Operation::orop, $3); }
-     | expr COMP expr { $$ = new AST::BinOp($1, $2, $3); }
+     | expr COMP expr { $$ = new AST::BinOp($1, AST::Operation::comp, $3); }
      | OP_NOT expr { $$ = $2; }
      | OP_MINUS expr %prec OP_MIN_UN { $$ = $2; }
      | L_PARENT expr R_PARENT { $$ = $2; }
@@ -217,11 +218,11 @@ expr : value
 /*end region */
 
 /* General region */
-value : INT { $$ = new AST::Value($1, AST::Type::integer); }
-      | DOUBLE { $$ = new AST::Value($1, AST::Type::real); }
-      | BOOL { $$ = new AST::Value($1, AST::Type::boolean); }
+value : INT { $$ = new AST::Number($1, AST::Type::integer); }
+      | DOUBLE { $$ = new AST::Number($1, AST::Type::real); }
+      | BOOL { $$ = new AST::Number($1, AST::Type::boolean); }
       | ID { tablePointer->useVariable($1);
-             $$ = new AST::Variable($1, AST::Type::unknown); }
+             $$ = new AST::Variable($1, AST::Usage::load); }
       ;
 /*end region */
 %%
